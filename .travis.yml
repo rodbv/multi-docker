@@ -1,0 +1,22 @@
+sudo: required
+services:
+  - docker
+
+before_install:
+  - docker build -t rodbv/react-test -f ./client/Dockerfile.dev ./client
+
+script:
+  - docker run rodbv/react-test npm test -- --coverage
+
+after_success:
+  - docker build -t rodbv/multi-client ./client
+  - docker build -t rodbv/multi-nginx ./nginx
+  - docker build -t rodbv/multi-server ./server
+  - docker build -t rodbv/multi-worker ./worker
+
+  # login to docker and push the images
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+  - docker push rodbv/multi-client
+  - docker push rodbv/multi-nginx
+  - docker push rodbv/multi-server
+  - docker push rodbv/multi-worker
