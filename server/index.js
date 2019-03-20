@@ -40,13 +40,18 @@ app.get('/', (req, res) => {
 });
 
 app.get('/values/all', async (req, res) => {
+  console.log('Getting all values from PG');
   const values = await pgClient.query('SELECT * from values');
+  console.log('values OK', values);
 
   res.send(values.rows);
 });
 
 app.get('/values/current', async (req, res) => {
+  console.log('getting current value from Redis');
+
   redisClient.hgetall('values', (err, values) => {
+    console.log('REDIS OK');
     res.send(values);
   });
 });
