@@ -2,6 +2,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const keys = require('./keys');
 
 const app = express();
 app.use(cors());
@@ -30,7 +31,6 @@ pgClient
 
 // Redis Client Setup
 const redis = require('redis');
-const keys = require('./keys');
 
 const redisClient = redis.createClient({
   host: keys.redisHost,
