@@ -1,4 +1,3 @@
-const keys = require('./keys');
 
 // Express App Setup
 const express = require('express');
@@ -13,16 +12,20 @@ console.log('keys:==>', keys);
 
 // Postgres Client Setup
 const { Pool } = require('pg');
+
 const pgClient = new Pool({
   user: keys.pgUser,
   host: keys.pgHost,
   database: keys.pgDatabase,
   password: keys.pgPassword,
-  port: keys.pgPort
+  port: keys.pgPort,
 });
+
+console.log('keys: ==>', keys);
+
 pgClient.on('error', () => console.log('Lost PG connection'));
-pgClient.on('connect', () => console.log('CONNECTED TO PG: ok');
-pgClient.on('acquire', () => console.log('PG: CONNECTED'))
+pgClient.on('connect', () => console.log('CONNECTED TO PG: ok'));
+pgClient.on('acquire', () => console.log('PG: ACQUIRED'));
 
 pgClient
   .query('CREATE TABLE IF NOT EXISTS values (number INT)')
@@ -30,10 +33,12 @@ pgClient
 
 // Redis Client Setup
 const redis = require('redis');
+const keys = require('./keys');
+
 const redisClient = redis.createClient({
   host: keys.redisHost,
   port: keys.redisPort,
-  retry_strategy: () => 1000
+  retry_strategy: () => 1000,
 });
 const redisPublisher = redisClient.duplicate();
 
@@ -61,7 +66,7 @@ app.get('/values/current', async (req, res) => {
 });
 
 app.post('/values', async (req, res) => {
-  const index = req.body.index;
+  const { index } = req.body;
 
   if (parseInt(index) > 40) {
     return res.status(422).send('Index too high');
@@ -75,6 +80,6 @@ app.post('/values', async (req, res) => {
   res.send({ working: true });
 });
 
-app.listen(5000, err => {
+app.listen(5000, (err) => {
   console.log('Listening');
 });
